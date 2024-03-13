@@ -1,0 +1,222 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package Authentication;
+
+service AuthenticationService {
+  rpc getUser (userId) returns (User);
+  rpc getUserPermission(userId) returns (permissionList);
+  rpc createUserVerification(userPhone) returns (userVerificationId);
+  rpc createNewUser(createUser) returns (userId);
+  rpc deleteUser(userId) returns (google.protobuf.Empty);
+  rpc getReasonTemplates(google.protobuf.Empty) returns (ReasonTemplates);
+  rpc getOneReasonTemplate(reasonTemplateId) returns (template);
+  rpc createAuditLogging(createAuditLoggingDto) returns (auditLoggingId);
+  rpc getGlobalConfigurationByName(globalConfigurationName) returns (globalConfigurationDto);
+  rpc getWorkflowType(workflowType) returns (workflowTypeDto);
+  rpc getApprovalWorkflow(params) returns (requestWorkflowDto);
+  rpc createApprovalStatusTracking(createApprovalStatusTrackingDto) returns (paramId);
+  rpc deleteApprovalStatusTracking(statusTracking) returns (google.protobuf.Empty);
+  rpc getMedia (paramId) returns (mediaDto);
+  rpc getRoleByRoleName(roleName) returns (roleDto);
+  rpc generateToken(generateTokenDto) returns (generateTokenResponse);
+  rpc deleteUserById(userId) returns (google.protobuf.Empty);
+  rpc generateOtp(generateOtpDto) returns (generateOtpResponse);
+  rpc updateEmployeeMpath(userId) returns (google.protobuf.Empty);
+}
+
+message generateOtpDto {
+  optional string email = 1;
+  optional string phone = 2;
+}
+
+message data {
+  string key = 1;
+  string code = 2;
+}
+
+message generateOtpResponse {
+  data data = 1;
+}
+
+message generateTokenDto {
+  int32 employeeId = 1;
+  int32 userId = 2;
+}
+
+message generateTokenResponse {
+  string refreshToken = 1;
+  string accessToken = 2;
+}
+
+message roleName {
+  string name = 1;
+}
+
+message roleDto {
+  int32 id = 1;
+  string name = 2;
+}
+
+message mediaTemplate {
+  int32 id = 1;
+  string entityType = 2;
+  int32 entityId = 3;
+  string mimeType = 4;
+  int32 size = 5;
+  string name = 6;
+  string filename = 7;
+  string description = 8;
+}
+
+message mediaDto {
+  repeated mediaTemplate data = 1;
+}
+
+message statusTracking {
+  int32 workflowTypeId = 1;
+  int32 entityId = 2;
+}
+
+message params {
+  int32 workflowTypeId = 1;
+  int32 positionLevelId = 2;
+}
+
+message createApprovalStatusTrackingDto {
+  int32 approvalWorkflowId = 1;
+  int32 requestWorkflowTypeId = 2;
+  int32 entityId = 3;
+  optional int32 requestToUpdateBy = 4;
+  optional string requestToUpdateJson = 5;
+  optional string requestToUpdateChanges = 6;
+  optional int32 firstApprovalUser = 7;
+  optional int32 secondApprovalUser = 8;
+  string status = 9;
+}
+
+message paramId {
+  int32 id = 1;
+}
+
+message workflowType {
+  string type = 1;
+}
+
+message requesterTemplate {
+  int32 id = 1;
+  int32 positionLevelId = 2;
+  int32 companyStructureDepartment = 3;
+}
+
+message requestWorkflowDto {
+  int32 requestWorkflowId = 1;
+  int32 positionLevelId = 2;
+}
+
+message RequestApprovalWorkflow {
+  int32 id  = 1;
+  bool enable = 2;
+  string description = 3;
+  repeated requesterTemplate requesters = 4;
+  repeated requesterTemplate requestFors = 5;
+  repeated requesterTemplate firstApprovers = 6;
+  repeated requesterTemplate secondApprovers = 7;
+  repeated requesterTemplate acknowledgers = 8;
+}
+
+message workflowTypeDto {
+  int32 id =1 ;
+  string requestType = 2;
+}
+
+message globalConfigurationName {
+  string name = 1;
+}
+
+message globalConfigurationDto {
+  int32 id = 1;
+  string name = 2;
+  bool isEnable = 3;
+  bool isSystemDefined = 4;
+  string value = 5;
+}
+
+message createAuditLoggingDto {
+  string requestJson = 1;
+  string requestMethod = 2;
+  string requestUrl = 3;
+  string ipAddress = 4;
+  int32 createdBy = 5;
+}
+
+message auditLoggingId {
+  int32 auditLoggingId = 1;
+  int32 isEnable = 3;
+  int32 isSystemDefined = 4;
+  string value = 5;
+}
+
+message Template {
+  int32 id = 1;
+  string name = 2;
+  string type = 3;
+}
+
+message reasonTemplateId {
+  int32 id = 1;
+}
+
+message template {
+  Template data = 1;
+}
+
+message pageMeta {
+  int32 totalCount = 1;
+  int32 pageSize = 2;
+  int32 currentPage = 3;
+  int32 nextPage = 4;
+  int32 prevPage = 5;
+  int32 lastPage = 6;
+}
+
+message ReasonTemplates {
+  repeated Template data = 1;
+}
+
+message userId {
+  int32  userId = 1;
+  optional bool  disableUser = 2;
+}
+
+message userVerificationId{
+    int32  userVerificationId = 1;
+}
+
+message permissionList {
+  repeated string permission = 1;
+}
+
+message User {
+  string username = 1;
+  int32 id = 2;
+  string email = 3;
+  string phone = 4;
+  bool resetPassword = 5;
+  bool isSelfService = 6;
+}
+
+message userPhone {
+  int32 userId = 1;
+  string phone = 2;
+}
+
+message createUser {
+  string username = 1;
+  string password = 2;
+  string phone = 3;
+  string email = 4;
+  repeated int32 roles = 5;
+  bool resetPassword = 6;
+}

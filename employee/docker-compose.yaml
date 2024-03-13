@@ -1,0 +1,73 @@
+version: '3.7'
+
+services:
+
+  kong:
+    image: kong/kong-gateway:2.8.1.1-alpine
+    environment:
+      KONG_PG_DATABASE: ${ENV_KONG_PG_DATABASE}
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: ${ENV_KONG_PG_HOST}
+      KONG_PG_USER: ${ENV_KONG_PG_USER}
+      KONG_PG_PASSWORD: ${ENV_KONG_PG_PASSWORD}
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_ADMIN_GUI_URL: '*'
+      KONG_LICENSE_DATA: ''
+      TZ: 'Asia/Phnom_Penh'
+    ports:
+      - 8443:8443
+      - 8000:8000
+      - 8001:8001
+      - 8444:8444
+      - 8002:8002
+      - 8445:8445
+      - 8003:8003
+      - 8004:8004
+    healthcheck:
+      test: kong health
+      interval: 10s
+      timeout: 10s
+      retries: 99999999
+    restart: on-failure
+
+  redis_koi:
+    restart: on-failure
+    image: redis:alpine
+    environment:
+    - TZ=Asia/Phnom_Penh
+  
+  hrm_authentication:
+    image: 'swr.ap-southeast-3.myhuaweicloud.com/matrix/authentication:${ENV_DEPLOY_TAG}'
+    restart: on-failure
+    depends_on:
+      - kong
+      - redis_koi
+    environment:
+      - TZ=Asia/Phnom_Penh
+      - DEPLOY_TAG=${ENV_DEPLOY_TAG}
+
+  hrm_employee:
+    restart: on-failure
+    image: 'swr.ap-southeast-3.myhuaweicloud.com/matrix/employee:${ENV_DEPLOY_TAG}'
+    volumes:
+        - /opt/koi/hrm:/app/public/images
+    depends_on:
+      - kong
+      - redis_koi
+    environment:
+      - TZ=Asia/Phnom_Penh
+      - DEPLOY_TAG=${ENV_DEPLOY_TAG}
+  
+  hrm_scheduler:
+    restart: on-failure
+    image: 'swr.ap-southeast-3.myhuaweicloud.com/matrix/scheduler:${ENV_DEPLOY_TAG}'
+    depends_on:
+    - hrm_authentication
+    - hrm_employee
+    environment:
+     - TZ=Asia/Phnom_Penh
+     - DEPLOY_TAG=${ENV_DEPLOY_TAG}

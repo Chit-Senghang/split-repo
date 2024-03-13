@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+      - TZ=Asia/Bangkok
+    volumes:
+      - ./create_db.sql:/docker-entrypoint-initdb.d/create_db.sql
+    ports:
+      - '5432:5432'
+  redis:
+    image: redis:alpine
+    ports:
+      - '6379:6379'

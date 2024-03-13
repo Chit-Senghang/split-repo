@@ -1,0 +1,3 @@
+export enum AUDIT_LOG_PERMISSION {
+  'READ_AUDIT_LOG' = 'READ_AUDIT_LOG'
+}

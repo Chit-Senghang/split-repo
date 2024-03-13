@@ -1,0 +1,68 @@
+version: '3.7'
+
+services:
+  redis_koi:
+    container_name: redis_koi
+    image: redis:alpine
+
+  db:
+    container_name: koi_hrm_db
+    image: postgres
+    environment:
+      POSTGRES_DB: e2e-test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      PG_DATA: /var/lib/postgresql/data
+    volumes:
+      - ./create_db.sql:/docker-entrypoint-initdb.d/create_db.sql
+    ports:
+      - '5432:5432'
+
+  hrm_authentication:
+    container_name: koi_hrm_authentication
+    privileged: true
+    build:
+      dockerfile: ./apps/authentication/Dockerfile
+      context: .
+    environment:
+      - KONG_URI=http://kong:8001
+      - APP_DOMAIN=http://kong:8000
+      - REDIS_HOST=redis_koi
+      - DB_HOST=db
+      - WAIT_HOSTS=kong:8001
+      - RATE_LIMIT=1000
+    depends_on:
+      - redis_koi
+      - db
+
+  hrm_employee:
+    container_name: koi_hrm_employee
+    privileged: true
+    build:
+      dockerfile: ./apps/employee/Dockerfile
+      context: .
+    environment:
+      - APP_DOMAIN=http://kong:8000
+      - BO_DOMAIN=kong:8080
+      - REDIS_HOST=redis_koi
+      - DB_HOST=db
+      - RATE_LIMIT=1000
+    volumes:
+      - /opt/koi/hrm:/app/public/images
+    depends_on:
+      - redis_koi
+      - db
+
+  e2e_testing:
+    container_name: koi_e2e_testing
+    build:
+      dockerfile: ./test/Dockerfile
+      context: .
+    environment:
+      API_ENDPOINT: http://kong:8000
+      WAIT_HOSTS: kong:8001, kong:8000
+      REDIS_HOST: redis_koi
+      DB_HOST: db
+    depends_on:
+      - hrm_authentication
+      - hrm_employee

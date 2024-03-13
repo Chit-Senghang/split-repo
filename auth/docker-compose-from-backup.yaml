@@ -1,0 +1,54 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+      - TZ=Asia/Bangkok
+    volumes:
+      - ./create_db.sql:/docker-entrypoint-initdb.d/create_db.sql
+    ports:
+      - '5432:5432'
+  redis:
+    image: redis:alpine
+    ports:
+      - '6379:6379'
+  kong:
+    image: kong/kong-gateway:2.8.1.1-alpine
+    environment:
+      KONG_PG_DATABASE: local_kong_gateway
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: db
+      KONG_PG_USER: postgres
+      KONG_PG_PASSWORD: root
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_ADMIN_GUI_URL: '*'
+      KONG_LICENSE_DATA: ''
+    ports:
+      - 8443:8443
+      - 8000:8000
+      - 8001:8001
+      - 8444:8444
+      - 8002:8002
+      - 8445:8445
+      - 8003:8003
+      - 8004:8004
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    healthcheck:
+      test: kong health
+      interval: 10s
+      timeout: 10s
+      retries: 99999999
+    restart: on-failure
+  alpine:
+    image: alpine
+    command: ['sleep', 'infinity']
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'

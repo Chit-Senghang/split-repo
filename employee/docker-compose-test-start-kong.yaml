@@ -1,0 +1,58 @@
+version: '3.7'
+
+services:
+  kong-database:
+    image: postgres
+    environment:
+      POSTGRES_USER: kong
+      POSTGRES_DB: kong
+      POSTGRES_PASSWORD: kongpass
+      TZ: 'Asia/Phnom_Penh'
+
+  kong-database-migration:
+    container_name: koi_kong_database_migration
+    image: kong/kong-gateway:2.8.1.1-alpine
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_PASSWORD: kongpass
+      KONG_PASSWORD: test
+      TZ: 'Asia/Phnom_Penh'
+    command: ['kong', 'migrations', 'bootstrap']
+    depends_on:
+      - kong-database
+
+  kong:
+    container_name: koi_kong_api_gateway
+    image: kong/kong-gateway:2.8.1.1-alpine
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kongpass
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_ADMIN_GUI_URL: '*'
+      KONG_LICENSE_DATA: ''
+      TZ: 'Asia/Phnom_Penh'
+    ports:
+      - 443:8443
+      - 8000:8000
+      - 8001:8001
+      - 8444:8444
+      - 8002:8002
+      - 8445:8445
+      - 8003:8003
+      - 8004:8004
+    depends_on:
+      - kong-database-migration
+      - kong-database
+    healthcheck:
+      test: kong health
+      interval: 10s
+      timeout: 10s
+      retries: 99999999
+    restart: on-failure

@@ -1,0 +1,4 @@
+export enum PAGINATION_ORDER_DIRECTION {
+  DESC = 'DESC',
+  ASC = 'ASC'
+}

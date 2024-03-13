@@ -1,0 +1,9 @@
+export const EMPLOYEE_RESIGNATION_HEADERS = [
+  'NO*',
+  'ACCOUNT NO*',
+  'EMPLOYEE*',
+  'RESIGN DATE*',
+  'RESIGN TYPE*',
+  'RESULT',
+  'MESSAGE'
+];

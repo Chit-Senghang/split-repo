@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package Leave;
+
+service LeaveService {
+     rpc updateLeaveStatus (updateStatusParams) returns (paramId);
+     rpc getRequest (paramId) returns (RequestDto);
+     rpc getLeaveByEntityId(getLeaveDto) returns (getLeaveResponse);
+}
+
+message updateStatusParams {
+     int32 id = 1;
+     optional string type = 2;
+     string status = 3;
+}
+   
+message paramId {
+     int32 id = 1;
+     optional string type = 2;
+}
+
+message RequestDto {
+     int32 id = 1;
+     string reason = 2;
+     string status = 3;
+     string fromDate = 4;
+     string toDate = 5;
+     string durationType = 6;
+     optional int32 leaveRequestTypeId = 7;
+}
+
+message getLeaveDto {
+     int32 entityId = 1;
+     string type = 2;
+     optional string employeeName = 3;
+     optional int32 positionId = 4;
+     optional int32 outletId = 5;
+}
+   
+message getLeaveResponse {
+     int32 id = 1;
+     string firstNameEn = 2;
+     string lastNameEn = 3;
+     string email = 4;
+     string phone = 5;
+     string location = 6;
+     string outlet = 7;
+     string department = 8;
+     string position = 9;
+     string displayFullNameEn = 10;
+     int32 employeeId = 11;
+}

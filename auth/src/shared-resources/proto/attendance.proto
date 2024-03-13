@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package Attendance;
+
+service AttendanceService {
+  rpc updateAttendanceStatus(updateAttendanceStatusDto) returns (attendanceId);
+  rpc getAttendanceByEntityId(getAttendanceDto) returns (getAttendanceResponse);
+}
+
+message updateAttendanceStatusDto {
+  int32 id = 1;
+  optional string type = 2;
+  string status = 3;
+}
+
+message attendanceId {
+  int32 id = 1;
+}
+
+message getAttendanceDto {
+  int32 entityId = 1;
+  string type = 2;
+  optional string employeeName = 3;
+  optional int32 positionId = 4;
+  optional int32 outletId = 5;
+}
+
+message getAttendanceResponse {
+  int32 id = 1;
+  string firstNameEn = 2;
+  string lastNameEn = 3;
+  string email = 4;
+  string phone = 5;
+  string location = 6;
+  string outlet = 7;
+  string department = 8;
+  string position = 9;
+  string displayFullNameEn = 10;
+  int32 employeeId = 11;
+}

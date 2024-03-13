@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+
+package Payroll;
+
+service PayrollService {
+     rpc getData(Empty) returns (Empty);
+}
+
+message Empty {}

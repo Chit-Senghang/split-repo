@@ -1,0 +1,5 @@
+export enum DurationTypeEnum {
+  DATE_RANGE = 'DATE_RANGE',
+  FIRST_HALF_DAY = 'FIRST_HALF_DAY',
+  SECOND_HALF_DAY = 'SECOND_HALF_DAY'
+}

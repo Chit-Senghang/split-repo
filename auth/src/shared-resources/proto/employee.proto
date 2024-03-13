@@ -1,0 +1,330 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+
+package Employee;
+
+service EmployeeService {
+  rpc findByEmail(email) returns (employeeDto);
+  rpc findByPhone(phone) returns (employeeDto);
+  rpc updateEmployeeGrpc(employeeUpdate) returns (employeeDto);
+  rpc getPositionLevelById(positionLevelId) returns (positionLevelDto);
+  rpc getEmployeeByUserId(user) returns (employeeDto);
+  rpc getEmployeeByEntityId(entityId) returns (employeeDto);
+  rpc getEmployeePositionByEmployeeId(employeeId) returns (employeePositionDto);
+  rpc updateEmployeeInformation(employeeUpdateDto) returns (employeeId);
+  rpc updateEmployeeStatus(employeeStatusParams) returns (employeeId);
+  rpc getCompanyStructureOutletId(companyStructureOutletId) returns (companyStructureOutletDto);
+  rpc getEmployeeId(employeeId) returns (responseEmployeeDto);
+  rpc getCompanyStructureComponentById(companyStructureComponentId) returns (companyStructureComponentDto);
+  rpc sendEmployeeResponse(google.protobuf.Empty) returns (verifyStatusDto);
+  rpc getEmployeeOfCurrentUser(userId) returns (CurrentEmployeeDto);
+  rpc getWorkingScheduler(Empty) returns (WorkingScheduleDto);
+  rpc getCompanyStructureOutlet(google.protobuf.Empty) returns (CompanyStructureOutLetDto);
+  rpc createAttendanceRecord(AttendanceRecordDto) returns (AttendanceRecordData);
+  rpc getAllEmployeeMpath(google.protobuf.Empty) returns (employeeMpathDto);
+  rpc startLog(jobSchedulerLogRequest) returns (google.protobuf.Empty);
+  rpc endLog(jobSchedulerLogNameRequest) returns (google.protobuf.Empty);
+  rpc failedLog(jobSchedulerLogNameRequest) returns (google.protobuf.Empty);
+  rpc updateFingerprintDeviceStatus(updateFingerprintDevice) returns (google.protobuf.Empty);
+  rpc notifyApplicationRunning(google.protobuf.Empty) returns (notifyStatus);
+  rpc companyInformation(google.protobuf.Empty) returns (companyInformationDto);
+  rpc setDateOnServer(setDateDto) returns (google.protobuf.Empty);
+}
+
+message setDateDto {
+  string date = 1;
+}
+
+message notifyStatus {
+  string status = 1;
+}
+
+message companyInformationDto {
+  string nameEn = 1;
+  string nameKh = 2;
+}
+
+message updateFingerprintDevice {
+  int32 id = 1;
+  string lastRetrievedDate = 2;
+  string lastRetrievedStatus = 3;
+}
+
+message jobSchedulerLogRequest {
+  string startType = 1;
+  string jobSchedulerLogName = 2;
+}
+
+message jobSchedulerLogNameRequest {
+  string jobSchedulerLogName = 1;
+}
+
+message Empty {}
+
+message mpathDto {
+  int32 id = 1;
+  repeated string mpath = 2;
+}
+
+message employeeMpathDto {
+  repeated mpathDto data = 1;
+}
+
+message AttendanceResult {
+  int32 id = 1;
+}
+
+message AttendanceRecord {
+  string fingerPrintId = 1;
+  string scanTime = 2;
+  int32 companyStructureOutletId = 3;
+}
+
+message AttendanceRecordDto {
+  repeated AttendanceRecord data= 1;
+}
+
+message AttendanceRecordData {
+  int32 data = 1;
+}
+
+message CompanyStructureOutLetDto {
+  repeated CompanyStructure data = 1;
+}
+
+message CompanyStructure {
+  int32 id = 1;
+  string ipAddress = 2;
+  string lastRetrieveDate = 3;
+  int32 port = 4;
+  string name = 5;
+  int32 fingerprintDeviceId = 6;
+}
+
+message CurrentEmployeeDto {
+  int32 id = 1;
+  string displayFullNameEn = 2;
+  string displayFullNameKh = 3;
+  string gender = 4;
+  string location = 5;
+  string store = 6;
+  string department = 7;
+  string division = 8;
+  string position = 9;
+  string levelNumber = 10;
+  WorkingShiftDto workingShift = 11;
+  ProfileDto profile = 12;
+  repeated string mpath = 13;
+  string status = 14;
+}
+
+message WorkingScheduleTemplate {
+  int32 id = 1;
+  string scheduleDate = 2;
+  string startWorkingTime = 3;
+  string endWorkingTime = 4;
+  responseEmployeeTemplate employeeId = 5;
+}
+
+message WorkingScheduleDto {
+  repeated WorkingScheduleTemplate data = 1;
+}
+
+message WorkingShiftDto {
+  int32 id = 1;
+  string name = 2;
+  string startWorkingTime = 4;
+  string endWorkingTime = 5;
+}
+
+message ProfileDto {
+  string name = 1;
+  string mimeType = 2;  
+}
+
+message verifyStatusDto {
+  string response = 1;
+}
+
+message entityId {
+  int32 entityId = 1;
+  string type = 2;
+  optional string employeeName = 3;
+  optional int32 positionId = 4;
+  optional int32 outletId = 5;
+}
+
+message companyStructureComponentId {
+  int32 id = 1;
+}
+
+message companyStructureComponentDto {
+  int32 id = 1;
+  string name = 2;
+  string type = 3;
+}
+
+message responseEmployeeDto {
+  responseEmployeeTemplate data = 1;
+}
+
+message responseEmployeeTemplate {
+  int32 id = 1;
+  string email = 2;
+  string firstNameEn = 3;
+  string dob = 4;
+  string gender = 5;
+  string startDate = 6;
+  string maritalStatus = 7;
+  optional WorkingShift workingShiftId = 8;
+  int32 positionLevelId = 9;
+  int32 createdBy = 10;
+  string lastNameEn = 11;
+  int32 userId = 12;
+  string location = 13;
+  string outlet = 14;
+  string department = 15;
+  string position = 16;
+  string displayFullNameEn = 17;
+}
+
+message WorkingShift {
+  int32 id = 1;
+  string name = 2;
+}
+
+message employeeStatusParams {
+  int32 id = 1;
+  optional string type = 2;
+  string status = 3;
+}
+
+message employeeUpdateDto {
+  updateEmployeeInformation requestUpdate = 1;
+  updateEmployeeInformation updateBody = 2;
+}
+
+message updateEmployeeInformation {
+  optional int32 id = 1;
+  optional string accountNo = 2;
+	optional string fingerPrintId = 3 ;
+	optional string employmentStatus = 4;
+	optional string firstNameEn = 5;
+	optional string lastNameEn = 6;
+	optional string firstNameKh = 7;
+	optional string lastNameKh = 8;
+	optional int32 genderId = 9;
+	optional string dateFormat = 10;
+	optional string startDate = 11;
+	optional string postProbationDate = 12;
+  optional string resignDate = 13;
+	optional string contractType = 14;
+	optional string contractPeriodStartDate = 15;
+	optional string contractPeriodEndDate = 16;
+	optional string employmentType = 17;
+	optional int32 workingShiftId = 18;
+	optional string dob = 19;
+  optional int32 age = 20;
+  optional int32 placeOfBirthId = 21;
+  optional int32 nationality = 22;
+	optional string email = 23;
+	optional int32 maritalStatus = 24;
+  optional int32 spouseId = 25;
+  optional string spouseOccupation = 26;
+  optional int32 numberOfChildren = 27;
+  optional string addressHomeNumber = 28;
+  optional string addressStreetNumber = 29;
+  optional int32 addressVillageId = 30;
+  optional int32 addressProvinceId = 31;
+  optional int32 addressDistrictId = 32;
+  optional int32 addressCommuneId = 33;
+ 	optional string taxResponsible = 34;
+  optional string status = 35;
+  optional int32 userId = 36;
+}
+
+message employeeId {
+  int32 employeeId = 1;
+}
+
+message employeePositionDto {
+  int32 id = 1;
+  bool isDefaultPosition = 2;
+  int32 companyStructureId = 3;
+  string department = 4;
+  string outlet = 5;
+  int32 positionLevelId = 6;
+  string levelTitle = 7;
+  int32 levelNumber = 8;
+}
+
+message user {
+  int32 userId = 1;
+}
+
+message companyStructureOutletId {
+  int32 id = 1;
+}
+
+message companyStructureOutletDto {
+  companyStructureOutletTemplate data = 1;
+}
+
+message companyStructureOutletTemplate {
+  int32 id = 1;
+  string name = 2;
+  string type = 3;
+}
+
+
+message positionLevelId {
+  int32 id = 1;
+}
+
+message positionLevelTemplate {
+  int32 id = 1;
+  string levelTitle = 2;
+  int32 levelNumber = 3;
+}
+
+message positionLevelDto {
+  positionLevelTemplate data = 1;
+}
+
+message createUserInfo {
+  string username = 1;
+  string email = 2;
+  string phone = 4;
+}
+
+message email {
+  string email = 1;
+}
+
+message phone {
+  string phone = 1;
+}
+
+message employeeUpdate {
+  string phone = 1;
+  string email = 2;
+  int32 userId = 3;
+}
+
+message userId {
+  int32 userId = 1;
+}
+
+message employeeDto {
+  int32 id = 1;
+  string firstNameEn = 2;
+  string lastNameEn = 3;
+  string email = 4;
+  string phone = 5;
+  string location = 6;
+  string outlet = 7;
+  string department = 8;
+  string position = 9;
+  string displayFullNameEn = 10;
+  int32 employeeId = 11;
+}

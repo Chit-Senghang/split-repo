@@ -1,0 +1,4 @@
+export enum REQUEST_DAY_TYPE_ENUM {
+  FULL_DAY = 'FULL_DAY',
+  HALF_DAY = 'HALF_DAY'
+}

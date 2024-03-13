@@ -1,0 +1,13 @@
+export const EMPLOYEE_WARNING_HEADERS = [
+  'NO*',
+  'ACCOUNT NO*',
+  'EMPLOYEE',
+  'WARNING TITLE*',
+  'WARNING TYPE*',
+  'WARNING DATE*',
+  'REASON*',
+  'RESULT',
+  'MESSAGE'
+];
+
+export const WARNING_TYPE_HEADERS = ['ID', 'NAME'];

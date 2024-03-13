@@ -1,0 +1,132 @@
+image: node:16-alpine
+
+stages:
+  - lint
+  - build
+  - deploy
+  - update
+
+.docker-login: &docker-login
+  - echo $CI_REGISTRY_PASSWORD | docker login -u ap-southeast-3@$AK --password-stdin $CI_REGISTRY
+
+.authentication-rule: &authentication-rule
+  - if: $CI_COMMIT_BRANCH == 'develop'
+    changes:
+      - apps/authentication/**/*
+
+.employee-rule: &employee-rule
+  - if: $CI_COMMIT_BRANCH == 'develop'
+    changes:
+      - apps/employee/**/*
+
+.attendance-rule: &attendance-rule
+  - if: $CI_COMMIT_BRANCH == 'develop'
+    changes:
+      - apps/attendance/**/*
+
+.leave-rule: &leave-rule
+  - if: $CI_COMMIT_BRANCH == 'develop'
+    changes:
+      - apps/leave/**/*
+
+.payroll-rule: &payroll-rule
+  - if: $CI_COMMIT_BRANCH == 'develop'
+    changes:
+      - apps/payroll/**/*
+
+.setup-ssh: &setup-ssh
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+  - chmod 600 ~/.ssh/id_rsa
+
+variables:
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ''
+
+services:
+  - docker:20.10.16-dind-alpine3.16
+
+lint:
+  before_script:
+    - apk add git
+  image: node:16-alpine
+  stage: lint
+  script:
+    - yarn
+    - yarn lint
+
+build-authentication:
+  image: docker:20.10.16-alpine3.16
+  rules: *authentication-rule
+  stage: build
+  before_script: 
+    - *docker-login
+    - echo "${DEV_AUTHENTICATION_ENV}" > .env
+  script:
+    - docker build -t swr.ap-southeast-3.myhuaweicloud.com/matrix/authentication:latest -f apps/authentication/Dockerfile .
+    - docker push swr.ap-southeast-3.myhuaweicloud.com/matrix/authentication:latest
+
+build-employee:
+  image: docker:20.10.16-alpine3.16
+  rules: *employee-rule
+  stage: build
+  before_script: 
+    - *docker-login
+    - echo "${DEV_EMPLOYEE_ENV}" > .env
+  script:
+    - docker build -t swr.ap-southeast-3.myhuaweicloud.com/matrix/employee:lastest -f apps/employee/Dockerfile .
+    - docker push swr.ap-southeast-3.myhuaweicloud.com/matrix/employee:lastest
+
+build-attendance:
+  image: docker:20.10.16-alpine3.16
+  rules: *attendance-rule
+  stage: build
+  before_script: 
+    - *docker-login
+    - echo "${DEV_ATTENDANCE_ENV}" > .env
+  script:
+    - docker build -t swr.ap-southeast-3.myhuaweicloud.com/matrix/attendance:lastest -f apps/attendance/Dockerfile .
+    - docker push swr.ap-southeast-3.myhuaweicloud.com/matrix/attendance:lastest
+
+build-leave:
+  image: docker:20.10.16-alpine3.16
+  rules: *leave-rule
+  stage: build
+  before_script: 
+    - *docker-login
+    - echo "${DEV_LEAVE_ENV}" > .env
+  script:
+    - docker build -t swr.ap-southeast-3.myhuaweicloud.com/matrix/leave:lastest -f apps/leave/Dockerfile .
+    - docker push swr.ap-southeast-3.myhuaweicloud.com/matrix/leave:lastest
+
+build-payroll:
+  image: docker:20.10.16-alpine3.16
+  rules: *payroll-rule
+  stage: build
+  before_script: 
+    - *docker-login
+    - echo "${DEV_PAYROLL_ENV}" > .env
+  script:
+    - docker build -t swr.ap-southeast-3.myhuaweicloud.com/matrix/payroll:lastest -f apps/payroll/Dockerfile .
+    - docker push swr.ap-southeast-3.myhuaweicloud.com/matrix/payroll:lastest
+
+deployment:
+  image: alpine
+  only:
+    - develop
+  stage: deploy
+  before_script:
+    - apk add openssh
+  script:
+    - *setup-ssh
+    - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./docker-compose.yaml $SSH_HOST:/root/dev/koi/core-docker-compose.yaml
+    - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./setup-kong-route.sh $SSH_HOST:/root/dev/koi/setup-kong-route.sh
+    - ssh $SSH_HOST 'docker system prune -af'
+    - ssh $SSH_HOST '$LOG_IN_CONTAINER_REGISTRY'
+    - ssh $SSH_HOST 'docker compose -f /root/dev/koi/core-docker-compose.yaml pull'
+    - ssh $SSH_HOST 'docker compose -f /root/dev/koi/core-docker-compose.yaml up -d'
+    - sleep 30
+    - ssh $SSH_HOST 'sh /root/dev/koi/setup-kong-route.sh localhost:8001 true'
+    - sleep 3

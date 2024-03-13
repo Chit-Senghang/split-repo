@@ -1,0 +1,6 @@
+export enum OvertimeTypeEnum {
+  NORMAL = 'NORMAL',
+  OFF_DAY = 'OFF_DAY',
+  PUBLIC_HOLIDAY = 'PUBLIC_HOLIDAY',
+  NIGHT_SHIFT = 'NIGHT SHIFT'
+}
